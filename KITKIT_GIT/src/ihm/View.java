@@ -34,7 +34,7 @@ import controller.KitkitActionListener;
 @SuppressWarnings("serial")
 public class View extends JFrame implements I_ControllerDialog, ActionListener{
 
-	private int[] tab_KeyEventToDetect = {KeyEvent.VK_F11,KeyEvent.VK_F5, KeyEvent.VK_F6};
+	private int[] tab_KeyEventToDetect = {KeyEvent.VK_F11, KeyEvent.VK_F2, KeyEvent.VK_F5, KeyEvent.VK_F6};
 	
 	private boolean isFullScreen = false;
 	
@@ -52,11 +52,6 @@ public class View extends JFrame implements I_ControllerDialog, ActionListener{
 	 * Liste des panels au sein du CardLayout
 	 */
 	private List<JPanel> listJPanelInCardLayout;
-
-	/**
-	 * CardLayout
-	 */
-	private CardLayout cardLayout;
 
 	/**
 	 * Panel centrale
@@ -146,9 +141,6 @@ public class View extends JFrame implements I_ControllerDialog, ActionListener{
 	{
 		// On recupere le containeur de la fenetre
 		Container container = getContentPane();
-		
-		// On initialise le card layout
-		cardLayout = new CardLayout();
 				
 		// On cree une nouvelle barre d'outils
 		JToolBar toolBar = new JToolBar();
@@ -164,7 +156,7 @@ public class View extends JFrame implements I_ControllerDialog, ActionListener{
 		panelCenter = new JPanel();
 		
 		// On change le layout du panel centrale
-		panelCenter.setLayout(cardLayout);
+		panelCenter.setLayout(new CardLayout());
 		
 		// On ajoute le panel centrale au centre de la fenetre
 		container.add(panelCenter,BorderLayout.CENTER);
@@ -178,7 +170,7 @@ public class View extends JFrame implements I_ControllerDialog, ActionListener{
 		listJPanelInCardLayout = new ArrayList<JPanel>();
 		
 		// On ajoute chaque panel au cardlayout
-		addPanels(cardLayout);
+		addPanels();
 
 	}
 
@@ -239,7 +231,7 @@ public class View extends JFrame implements I_ControllerDialog, ActionListener{
 	 * Cree et initialise tous les panels au sein du CardLayout 
 	 * @param cardLayout
 	 */
-	private void addPanels(CardLayout cardLayout)
+	private void addPanels()
 	{
 	
 		// Onglet KRAC

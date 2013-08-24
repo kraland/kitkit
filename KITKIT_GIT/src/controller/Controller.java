@@ -1,10 +1,8 @@
 package controller;
 
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -15,12 +13,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-
 import javax.swing.JOptionPane;
+import javax.swing.LookAndFeel;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 
 import controller.parser.ParserConfContent;
+import de.javasoft.plaf.synthetica.SyntheticaBlackMoonLookAndFeel;
+import de.javasoft.plaf.synthetica.SyntheticaBlackStarLookAndFeel;
+import de.javasoft.plaf.synthetica.SyntheticaBlueIceLookAndFeel;
+import de.javasoft.plaf.synthetica.SyntheticaBlueMoonLookAndFeel;
+import de.javasoft.plaf.synthetica.SyntheticaBlueSteelLookAndFeel;
+import de.javasoft.plaf.synthetica.SyntheticaGreenDreamLookAndFeel;
+import de.javasoft.plaf.synthetica.SyntheticaSilverMoonLookAndFeel;
+import de.javasoft.plaf.synthetica.SyntheticaStandardLookAndFeel;
+import ihm.ConfigIcon;
 import ihm.I_ViewDialog;
 import ihm.View;
 import ihm.load.WindowLoad;
@@ -228,198 +235,27 @@ public class Controller implements I_ViewDialog, I_ModelDialog{
 	 */
 	public void tryToUpdateModel()
 	{
-		// Nom du fichier contenant le timestamp du dernier modele mis a jour
-		String s_nameInternetDirectory = "http://kitkit.ki.free.fr/confContentBatiment/";
+		ModelDownloader downloader = new ModelDownloader(true);
+		downloader.setController(this);
+		downloader.setModel(this.getModel());
+		downloader.setView(this.getView());
 		
-		String s_nameFolder = "fileConf";
-		String s_nameFileConf = "confContentBatiment";
-		String s_nameFileLast = "last";		
-		
-		String s_zipExtension = ".zip";
-		String s_xmlExtension = ".xml";		
-		
-		// Buffer permettant de recuperer le contenu de la page 
-		StringBuffer buffer = new StringBuffer();
-		
-		// OptionPane indiquant a l'utilisateur ce que le programme va effectuer
-		JOptionPane.showMessageDialog(getView(),"L'application va récuperer le contenu du fichier :\n" + s_nameInternetDirectory + s_nameFileLast + "\n");
-		
-		// On va recuperer le contenu du fichier last sur le site internet du KITKIT.
-		// Ce fichier contient uniquement le timestamp du dernier modele.
-		// Fichier de 13 octets...
-		buffer = convertContentUrlToStringBuffer(s_nameInternetDirectory + s_nameFileLast);
-			
-		try
-		{
-			// On convertit le buffer du fichier last en long
-			long timestamp = Long.parseLong(buffer.toString());
-			
-			// Si le dernier modele est plus recent
-			if(timestamp > getModel().getL_timestampUpdate())
-			{
-				// On l'indique a l'utilisateur et on lui demande s'il veut le mettre a jour
-				int i_response = JOptionPane.showConfirmDialog(getView(),"Un modèle plus récent est disponible.\nVoulez-vous le mettre à jour ?","Question",JOptionPane.YES_NO_OPTION);
-
-				// Si l'utilisateur accepte
-				if(i_response == 0)
-				{
-				   	//On cree le dossier si il n'existe pas encore
-			    	File folder = new File(s_nameFolder);
-			    	if(!folder.exists()){
-			    		folder.mkdir();
-			    	}
-			    	
-					// On telecharge le fichier xml du dernier modele
-					if(downloadFile(s_nameInternetDirectory + s_nameFileConf + s_zipExtension, new File(s_nameFolder + File.separator + s_nameFileConf + s_zipExtension)))
-					{
-						byte[] tab_byte = new byte[1024];
-						try
-						{					 
-					    	//get the zip file content
-						    ZipInputStream zis = new ZipInputStream(new FileInputStream(s_nameFolder + File.separator + s_nameFileConf + s_zipExtension));
-						    //get the zipped file list entry
-						    ZipEntry ze = zis.getNextEntry();
-						   	
-						    while(ze!=null)
-						    {
-						    	// TODO : Normalement cela permet d'extraire tous les fichiers au sein du zip.
-						    	// Necessite de verifier
-						    	// Car lorsque le fichier des valeurs indicatives ou des organisations sera ajoutée à l'archive il sera necessaire de dezipper ces fichiers
-						    	
-						   		String fileName = ze.getName();
-						        File newFile = new File(s_nameFolder + File.separator + fileName);
-						 		System.out.println("Fichier dezippe : "+ newFile.getAbsoluteFile());
-						 		
-						 		//create all non exists folders
-						        //else you will hit FileNotFoundException for compressed folder
-						        new File(newFile.getParent()).mkdirs();
-						 		FileOutputStream fos = new FileOutputStream(newFile);             
-						 		
-						 		int len;
-						 		while ((len = zis.read(tab_byte)) > 0) {
-						 			fos.write(tab_byte, 0, len);
-						        }
-						 		fos.close();   
-						        ze = zis.getNextEntry();
-						    }
-						 	
-						   	zis.closeEntry();
-						   	zis.close();
-						   	
-							System.out.println("Desarchivage termine");
-							JOptionPane.showMessageDialog(getView(),"Le modèle est à jour.\nL'application va recharger le modèle");
-						    	
-							loadFileConf(s_nameFolder + File.separator + s_nameFileConf + s_xmlExtension);
-
-						}
-						catch(IOException ex){
-							ex.printStackTrace();
-							JOptionPane.showMessageDialog(getView(),"Erreur lors du dézippage du fichier.","Erreur",JOptionPane.ERROR_MESSAGE);
-						}
-					}
-					else
-					{
-						JOptionPane.showMessageDialog(getView(),"Impossible de récupèrer le fichier :\n" + s_nameInternetDirectory + s_nameFileConf + s_zipExtension + "\nVérifiez que vous êtes connecté à Internet ou que ce fichier existe.","Erreur",JOptionPane.ERROR_MESSAGE);						
-					}
-				}
-			}
-			else
-			{
-				JOptionPane.showMessageDialog(getView(),"Le modèle est à jour.");
-			}
-		}
-		catch(NumberFormatException e)
-		{
-			JOptionPane.showMessageDialog(getView(),"Le contenu du fichier : " + s_nameInternetDirectory + s_nameFileLast + "\nn'est pas au format attendu (" + buffer.toString() +").","Erreur",JOptionPane.ERROR_MESSAGE);
-		}
+		downloader.execute();
 	}
 	
 	/**
-	 * Telecharge un fichier a l'adresse placee en parametre pour l'enregistrer dans le fichier place en parametre
-	 * @param adresse
-	 * @param dest
-	 * @return
+	 * Essaye de mettre a jour le modele
 	 */
-	private boolean downloadFile(String adresse, File dest)
+	public void tryToLoadOldModel()
 	{
-		// TODO Augmenter les commentaires pour gagner en lisibilite
+		ModelDownloader downloader = new ModelDownloader(false);
+		downloader.setController(this);
+		downloader.setModel(this.getModel());
+		downloader.setView(this.getView());
 		
-		// Initialisation
-		BufferedReader reader = null;
-		FileOutputStream fos = null;
-		InputStream in = null;
+		downloader.execute();
+	}
 		
-		try
-		{
-			// Creation de la connection
-			URL url = new URL(adresse);
-			URLConnection conn = url.openConnection();
-				
-			// On recupere la longueur du fichier
-			final int i_fileLenght = conn.getContentLength();
-			if (i_fileLenght == -1)
-			{
-				throw new IOException("Fichier non valide.");
-			}	
-			
-			// Lecture de la reponse
-			in = conn.getInputStream();
-			reader = new BufferedReader(new InputStreamReader(in));
-			
-			// Si le fichier de destination n'existe pas on le cree
-			if (dest == null)
-			{
-				String FileName = url.getFile();
-				FileName = FileName.substring(FileName.lastIndexOf('/') + 1);
-				dest = new File(FileName);
-			}
-
-			fos = new FileOutputStream(dest);
-			byte[] buff = new byte[1024];
-			int l = in.read(buff);	
-
-			// Tant qu'on a pas fini de lire le fichier
-			while (l > 0)
-			{
-				// On ecrit les donnees
-				fos.write(buff, 0, l);
-				
-				// On lit
-				l = in.read(buff);
-				
-			}
-			
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-			return false;
-		}
-		finally
-		{
-			try
-			{
-				fos.flush();
-				fos.close();
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-				return false;
-			}
-			try 
-			{
-				reader.close();
-			}
-			catch (Exception e)
-			{
-				e.printStackTrace();
-				return false;
-			}
-		}
-		return true;
-	} 
-	
 	/**
 	 * Recupere le contenu de l'URL placee en parametre et le met dans un StringBuffer
 	 * @param s_nameUrl
@@ -706,7 +542,7 @@ public class Controller implements I_ViewDialog, I_ModelDialog{
 				{
 					// On parcourt chaque batiment de la province
 					for(Building building : city.getListBuilding())
-					{
+					{						
 						// On parcourt chaque materiel 
 						for(Material material : building.getListMaterial())
 						{
@@ -727,7 +563,9 @@ public class Controller implements I_ViewDialog, I_ModelDialog{
 								listString_RowToAdd.add(String.valueOf(material.getI_priceSold()));
 								listString_RowToAdd.add(String.valueOf(material.getI_buyPrice()));
 								listString_RowToAdd.add(String.valueOf(material.getI_stockedQuantity()));
-								listString_RowToAdd.add(String.valueOf(material.getI_maxQuantity()));									
+								listString_RowToAdd.add(String.valueOf(material.getI_maxQuantity()));
+								listString_RowToAdd.add(String.valueOf(building.getI_salary()));
+								listString_RowToAdd.add(String.valueOf(building.getI_nbSalary()));
 								if(building.isClosed())
 								{
 									listString_RowToAdd.add("true");	
@@ -1511,5 +1349,117 @@ public class Controller implements I_ViewDialog, I_ModelDialog{
 	 */
 	public void setView(View view) {
 		this.view = view;
+	}
+
+	/**
+	 * Change le skin du logiciel
+	 */
+	@SuppressWarnings("static-access")
+	public void changeSkin()
+	{
+		//String[] tab_choiceSkin = {"Standard","BlueLight","AluOxide","Classy","BlackEye","Simple2D","WhiteVision","SkyMetallic","MauveMetallic","OrangeMetallic","BlueSteel","BlackMoon","BlueMoon","SilverMoon","BlueIce","GreenDream","BlackStar"};
+		String[] tab_choiceSkin = {"Standard","BlueSteel","BlackMoon","BlueMoon","SilverMoon","BlueIce","GreenDream","BlackStar"};
+		
+		String s = (String)JOptionPane.showInputDialog(
+                getView(),
+                "Skin :",
+                "Choix du skin",
+                JOptionPane.PLAIN_MESSAGE,
+                ConfigIcon.getInstance().LOGO_KITKIT_16,
+                tab_choiceSkin,
+                tab_choiceSkin[0]);
+
+		//If a string was returned, say so.
+		if ((s != null) && (s.length() > 0))
+		{
+			int i_idSkinSelected = 0;
+			
+			for(int i_idSkin = 0 ; i_idSkin < tab_choiceSkin.length ; i_idSkin++)
+			{
+				if(s.equals(tab_choiceSkin[i_idSkin]))
+				{
+					i_idSkinSelected = i_idSkin;
+					break;
+				}
+			}
+						
+			try
+			{
+				LookAndFeel lookToApply = null;
+				Rectangle bounds = view.getBounds();
+				
+				if(i_idSkinSelected !=0)
+				{
+					i_idSkinSelected += 10;
+				}
+				
+				switch (i_idSkinSelected)
+				{
+/*
+					case 2 :
+						lookToApply = new SyntheticaBlueLightLookAndFeel();
+						break;
+					case 3 :
+						lookToApply = new SyntheticaAluOxideLookAndFeel();
+						break;
+					case 4 :
+						lookToApply = new SyntheticaClassyLookAndFeel();
+						break;
+					case 5 :
+						lookToApply = new SyntheticaBlackEyeLookAndFeel();
+						break;
+					case 6 :
+						lookToApply = new SyntheticaSimple2DLookAndFeel();
+						break;
+					case 7 :
+						lookToApply = new SyntheticaWhiteVisionLookAndFeel();
+						break;
+					case 8 :
+						lookToApply = new SyntheticaSkyMetallicLookAndFeel();
+						break;
+					case 9 :
+						lookToApply = new SyntheticaMauveMetallicLookAndFeel();
+						break;
+					case 10 :
+						lookToApply = new SyntheticaOrangeMetallicLookAndFeel();
+						break;
+*/
+					case 11 :
+						lookToApply = new SyntheticaBlueSteelLookAndFeel();
+						break;
+					case 12 :
+						lookToApply = new SyntheticaBlackMoonLookAndFeel();
+						break;
+					case 13 :
+						lookToApply = new SyntheticaBlueMoonLookAndFeel();
+						break;
+					case 14 :
+						lookToApply = new SyntheticaSilverMoonLookAndFeel();
+						break;
+					case 15 :
+						lookToApply = new SyntheticaBlueIceLookAndFeel();
+						break;
+					case 16 :
+						lookToApply = new SyntheticaGreenDreamLookAndFeel();
+						break;
+					case 17 :
+						lookToApply = new SyntheticaBlackStarLookAndFeel();
+						break;					
+					default :
+						lookToApply = new SyntheticaStandardLookAndFeel();
+						break;
+				}
+			
+				UIManager.setLookAndFeel(lookToApply);
+				SwingUtilities.updateComponentTreeUI(view);
+				view.pack();
+				view.setBounds(bounds);
+			} 
+			catch (Exception e) 
+			{
+				JOptionPane.showMessageDialog(getView(),"Problème lors du chargement du skin");
+			}
+
+		}
 	}
 }												 

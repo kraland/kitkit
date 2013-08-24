@@ -27,6 +27,7 @@ public class TabModelBuilding extends TabModel implements I_ControllerDialog{
 	 * 10 : Filtre d'entier
 	 * 11 : Filtre de cases
 	 * 12 : Filtre de booleen
+	 * 13 : Filtre de valeur KI
 	 */
 	private static int[]	listTypeFilter	=	{	10,
 													1,
@@ -36,7 +37,7 @@ public class TabModelBuilding extends TabModel implements I_ControllerDialog{
 													1,
 													2,
 													2,
-													10};
+													13};
 	
 	/**
 	 * Constructeur de modele de tableau affichant les possessions d'un personnage

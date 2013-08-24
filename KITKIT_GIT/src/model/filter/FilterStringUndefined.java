@@ -8,7 +8,7 @@ public class FilterStringUndefined extends Filter {
 	/**
 	 * String a filtrer
 	 */
-	private String s_Filter ="";
+	private String s_Filter;
 
 
 	/**
@@ -67,5 +67,15 @@ public class FilterStringUndefined extends Filter {
 		{
 			System.out.println("Erreur de taille");
 		}
+	}
+
+
+	@Override
+	public void initFilter() {
+		// On desactive le filtre
+		setActive(false);
+		
+		// On initialise le filtre
+		setS_Filter("");
 	}
 }

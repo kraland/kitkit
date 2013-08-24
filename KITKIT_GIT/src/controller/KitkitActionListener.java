@@ -36,6 +36,11 @@ public class KitkitActionListener implements ActionListener, I_ViewDialog{
 		{	
 			view.getController().setFullScreen(!view.isFullScreen());
 		}
+		// Si l'utilisateur a demande un changement de skin
+		else if(i_keyEvent == KeyEvent.VK_F2)
+		{
+			view.getController().changeSkin();
+		}		
 		// Si l'utilisateur a demande une mise a jour du modele
 		else if(i_keyEvent == KeyEvent.VK_F5)
 		{
@@ -44,7 +49,7 @@ public class KitkitActionListener implements ActionListener, I_ViewDialog{
 		// Si l'utilisateur a demande une mise a jour du modele d'un ancien modele
 		else if(i_keyEvent == KeyEvent.VK_F6)
 		{
-			
+			view.getController().tryToLoadOldModel();
 		}		
 		
 		// TODO Pourquoi la touche espace a le même comportement qu'un F5 ? WTF

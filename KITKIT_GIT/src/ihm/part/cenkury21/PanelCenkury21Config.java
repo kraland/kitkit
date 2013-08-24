@@ -4,6 +4,7 @@ import ihm.ConfigIcon;
 import ihm.IHMTools;
 import ihm.I_Viewable;
 import ihm.part.I_TableViewer;
+import ihm.part.PanelExtendedColumn;
 import ihm.part.PanelExtendedFilter;
 
 import java.awt.BorderLayout;
@@ -19,6 +20,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -96,7 +98,7 @@ public class PanelCenkury21Config extends JPanel  implements	ActionListener,
 	 * Panel contenant les filtres
 	 */
 	private PanelExtendedFilter jPanelFilter;
-	
+
 	/**
 	 * Label affichant ou non une alerte si au moins un filtre est actif
 	 */
@@ -106,6 +108,26 @@ public class PanelCenkury21Config extends JPanel  implements	ActionListener,
 	 * Liste de boutons de filtre
 	 */
 	private JButton[] list_jButtonFilter;
+	
+	/**
+	 * Panel contenant la liste des colonnes
+	 */
+	private PanelExtendedColumn jPanelColumn;
+		
+	/**
+	 * Label affichant ou non une alerte si au moins un filtre est actif
+	 */
+	private JButton jButtonColumnIndicator;
+	
+	/**
+	 * Liste de checkbox de colonnes
+	 */
+	private JCheckBox[] list_jCheckBoxColumn;
+	
+	/**
+	 * Booleen indiquant si l'initialisation est en cours
+	 */
+	private boolean isInitInProgress = false;
 	
 	/**
 	 * Constructeur de panel de configuration
@@ -173,8 +195,7 @@ public class PanelCenkury21Config extends JPanel  implements	ActionListener,
     	bH.add(Box.createHorizontalGlue());
     	bH.setMaximumSize(new Dimension(3000,32));
     	bV.add(bH);
-    	bV.add(Box.createVerticalStrut(10));
-    	
+    	bV.add(Box.createVerticalStrut(10));  	
   	  
 		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 		//////////////////////////////////////////// On cree la partie Filtres ////////////////////////////////////////// 
@@ -183,6 +204,15 @@ public class PanelCenkury21Config extends JPanel  implements	ActionListener,
     	jPanelFilter = new PanelExtendedFilter();
     	bV.add(jPanelFilter);
     	jPanelFilter.setMaximumSize(new Dimension(3000,80));
+    	bV.add(Box.createVerticalStrut(10)); 
+    	
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		//////////////////////////////////////////// On cree la partie Colonnes ///////////////////////////////////////// 
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
+    	
+    	jPanelColumn = new PanelExtendedColumn();
+    	bV.add(jPanelColumn);
+    	jPanelColumn.setMaximumSize(new Dimension(3000,80));
     	
     	bV.add(Box.createVerticalGlue());
     	
@@ -202,7 +232,6 @@ public class PanelCenkury21Config extends JPanel  implements	ActionListener,
 			
 			// On cree le bouton indiquant si un filtre est actif
 			jButtonFilterIndicator = IHMTools.getInstance().getNewButtonWithIcon_ActionListener(ConfigIcon.getInstance().EMPTY_16,this);
-			jButtonFilterIndicator.addActionListener(this);
 			
 			// On transmet le bouton indiquant si un filtre est actif au panel affichant les filtres
 			jPanelFilter.setJComponentBegin(jButtonFilterIndicator);
@@ -231,6 +260,46 @@ public class PanelCenkury21Config extends JPanel  implements	ActionListener,
 		jPanelFilter.updateButtonFilter();
 	}
 	
+	@SuppressWarnings("static-access")
+	public void createColumnPanel()
+	{
+		// Si le panel de colonne n'a pas deja ete initialise
+		if(!jPanelColumn.hasDoneInit())
+		{
+			TabModel tabModel = ctrl.getModel().getTabModelBuildingToBuy();
+			
+			// On transmet son nom au panel affichant les filtres
+			jPanelColumn.setS_name("Colonnes :");
+			
+			// On cree le bouton indiquant si un filtre est actif
+			jButtonColumnIndicator = IHMTools.getInstance().getNewButtonWithIcon_ActionListener(ConfigIcon.getInstance().COLUMN_ALL_SELECTED,this);
+			
+			// On transmet le bouton indiquant si un filtre est actif au panel affichant les filtres
+			jPanelColumn.setJComponentBegin(jButtonColumnIndicator);
+					
+			// On cree le tableau de bouton
+			list_jCheckBoxColumn = new JCheckBox[tabModel.getListTitleColumn().length];
+	    	
+		 	// On cree chaque bouton
+	    	for(int i_idFilter = 0 ; i_idFilter < tabModel.getListTitleColumn().length ; i_idFilter++)
+	    	{
+	    		list_jCheckBoxColumn[i_idFilter] = new JCheckBox(tabModel.getListTitleColumn()[i_idFilter]);
+	    	}
+	    	
+			// On transmet la liste de bouton de filtres au panel affichant les filtres
+	    	jPanelColumn.setListComponent(list_jCheckBoxColumn);
+	    	
+	    	jPanelColumn.setiTableViewer(this);
+	    	jPanelColumn.setController(ctrl);
+	    	jPanelColumn.setTabModel(tabModel);
+			
+			// On cree le panel
+	    	jPanelColumn.createPanelExtended();
+	    	
+		}
+		
+		jPanelColumn.updateButtonColumn();
+	}
 	
 	/**
 	 * Initialise les objets
@@ -324,11 +393,17 @@ public class PanelCenkury21Config extends JPanel  implements	ActionListener,
 	 */
 	public void initValueIHM()
 	{
+		isInitInProgress = true;
 		jLabelSearch.setText("Lancer la recherche...");
+		jSpinnerNbDistrictAround.setValue(0);
 		
 		createFilterPanel();
+		createColumnPanel();
 		
+		// Initialise les valeurs de la liste de province
 		initValueDistrict(ctrl.getListDistrictSortedByName());
+				
+		isInitInProgress = false;
 	}
 	
 	/**
@@ -349,15 +424,18 @@ public class PanelCenkury21Config extends JPanel  implements	ActionListener,
 
 	public void launchResearch()
 	{
-		// Si la combo contenant la province n'est pas selectionnee
-		if(jComboDistrict.getItemAt(jComboDistrict.getSelectedIndex()) == null)
+		if(!isInitInProgress)
 		{
-			//JOptionPane.showMessageDialog(ctrl.getView(),"Choisissez une province...","Erreur",JOptionPane.ERROR_MESSAGE);
-		}
-		else
-		{
-			// On cherche les batiments qui correspondent aux criteres de recherche
-			jLabelSearch.setText(ctrl.searchBuilding((String)jComboDistrict.getItemAt(jComboDistrict.getSelectedIndex()),(Integer)jSpinnerNbDistrictAround.getValue()));
+			// Si la combo contenant la province n'est pas selectionnee
+			if(jComboDistrict.getItemAt(jComboDistrict.getSelectedIndex()) == null)
+			{
+				//JOptionPane.showMessageDialog(ctrl.getView(),"Choisissez une province...","Erreur",JOptionPane.ERROR_MESSAGE);
+			}
+			else
+			{		
+				// On cherche les batiments qui correspondent aux criteres de recherche
+				jLabelSearch.setText(ctrl.searchBuilding((String)jComboDistrict.getItemAt(jComboDistrict.getSelectedIndex()),(Integer)jSpinnerNbDistrictAround.getValue()));
+			}
 		}
 	}
 

@@ -10,6 +10,11 @@ public abstract class Filter {
 	private boolean isActive;
 	
 	/**
+	 * Booleen indiquant si la colonne est visible
+	 */
+	private boolean isColumnVisible;
+		
+	/**
 	 * Type du filtre
 	 */
 	private int i_type;
@@ -39,10 +44,12 @@ public abstract class Filter {
 	{
 		setS_name(s_name);
 		setActive(false);
+		setColumnVisible(true);
 		setI_type(i_type);
 		setI_idFilter(i_idFilter);
 		setI_nbFilter(i_nbFilter);
-				
+		
+		initFilter();				
 	}
 
 	/**
@@ -61,6 +68,22 @@ public abstract class Filter {
 		this.isActive = isActive;
 	}
 
+	/**
+	 * Renvoie le booleen indiquant si la colonne est affichee
+	 * @return
+	 */
+	public boolean isColumnVisible() {
+		return isColumnVisible;
+	}
+
+	/**
+	 * Change le booleen indiquant si la colonne est affichee
+	 * @param isColumnVisible
+	 */
+	public void setColumnVisible(boolean isColumnVisible) {
+		this.isColumnVisible = isColumnVisible;
+	}
+	
 	/**
 	 * Renvoie le type de filtre
 	 * @return
@@ -155,5 +178,12 @@ public abstract class Filter {
 	 * @param listParameters
 	 */
 	public abstract void keepParametersFilter(List<Object> listParameters);
+
+	
+	/**
+	 * Methode pour initialiser le filtre
+	 */
+	public abstract void initFilter();
+
 
 }

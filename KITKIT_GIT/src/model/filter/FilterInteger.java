@@ -7,12 +7,12 @@ public class FilterInteger extends Filter{
 	/**
 	 * Valeur minimale (mis au lancement de l'application a 0)
 	 */
-	private int i_valueMin = 0;
+	private int i_valueMin;
 	
 	/**
 	 * Valeur maximale (mis au lancement de l'application a 100)
 	 */
-	private int i_valueMax = 100;
+	private int i_valueMax;
 
 	/**
 	 * Constructeur de filtre d'entiers
@@ -90,6 +90,16 @@ public class FilterInteger extends Filter{
 		{
 			System.out.println("Erreur de taille");
 		}
+	}
+
+	@Override
+	public void initFilter() {
+		// On desactive le filtre
+		setActive(false);
+		
+		// On initialise le filtre
+		setI_valueMin(0);
+		setI_valueMax(100);
 	}
 	
 }

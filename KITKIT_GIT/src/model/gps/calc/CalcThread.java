@@ -300,6 +300,10 @@ public class CalcThread extends Thread{
 		{
 			return 0.04;			
 		}
+		else if(133 == i_typeCase)
+		{
+			return 0.04;			
+		}
 		else if(141 == i_typeCase)
 		{
 			return 0.02;			

@@ -1,5 +1,7 @@
 package model.tab;
 
+import ihm.TableColumnHider;
+
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
@@ -8,6 +10,7 @@ import model.filter.Filter;
 import model.filter.FilterBoolean;
 import model.filter.FilterCase;
 import model.filter.FilterInteger;
+import model.filter.FilterKIValue;
 import model.filter.FilterListStringDefined;
 import model.filter.FilterStringUndefined;
 
@@ -44,6 +47,11 @@ public abstract class TabModel extends AbstractTableModel implements I_Controlle
 	private Filter[] listFilter;
 	
 	/**
+	 * Hider
+	 */
+	private TableColumnHider columnHider;
+	
+	/**
 	 * Controlleur de l'application
 	 */
 	private Controller ctrl;
@@ -76,6 +84,7 @@ public abstract class TabModel extends AbstractTableModel implements I_Controlle
 			 * 10 : Filtre d'entier
 			 * 11 : Filtre de cases
 			 * 12 : Filtre de booleen
+			 * 13 : Filtre de valeur KI
 			 */
 			
 			switch(listTypeFilter[i_idFilter])
@@ -95,8 +104,12 @@ public abstract class TabModel extends AbstractTableModel implements I_Controlle
 				case 12 :
 					listFilter[i_idFilter] = new FilterBoolean(listTypeFilter[i_idFilter],i_idFilter,listTypeFilter.length,listTitleColumn[i_idFilter]);
 					break;
+				case 13 :
+					listFilter[i_idFilter] = new FilterKIValue(listTypeFilter[i_idFilter],i_idFilter,listTypeFilter.length,listTitleColumn[i_idFilter]);
+					break;
 				default :
-					listFilter[i_idFilter] = new FilterListStringDefined(listTypeFilter[i_idFilter],i_idFilter,listTypeFilter.length,listTitleColumn[i_idFilter]);	
+					System.err.println("TabModel.java - Unknown Filter");
+					listFilter[i_idFilter] = new FilterStringUndefined(listTypeFilter[i_idFilter],i_idFilter,listTypeFilter.length,listTitleColumn[i_idFilter]);	
 					break;
 			}
 		}
@@ -106,65 +119,33 @@ public abstract class TabModel extends AbstractTableModel implements I_Controlle
 	{	
 		for(int i_idFilter = 0 ; i_idFilter < listTypeFilter.length ; i_idFilter++)
 		{
-
-			listFilter[i_idFilter].setActive(false);
+			// On initialise le filtre
+			listFilter[i_idFilter].initFilter();
 			
-			/**
-			 * Type des filtres
-			 * 1 : Filtre de liste de string definie
-			 * 2 : Filtre de string indefinie
-			 * 10 : Filtre d'entier
-			 * 11 : Filtre de cases
-			 * 12 : Filtre de booleen
-			 */
-			
-			switch(listTypeFilter[i_idFilter])
+			// Si il s'agit d'un filtre de liste de string definie
+			if(listTypeFilter[i_idFilter] == 1)
 			{
-				case 1 :
+				// Ville
+				if(listTitleColumn[i_idFilter].equals("Ville")) {
+					((FilterListStringDefined)listFilter[i_idFilter]).setListStringDefined(ctrl.getListCitySortedByName());
+				}
 					
-					((FilterListStringDefined)listFilter[i_idFilter]).setListStringFiltered(new ArrayList<String>());
+				// Province
+				else if(listTitleColumn[i_idFilter].equals("Province")) {
+					((FilterListStringDefined)listFilter[i_idFilter]).setListStringDefined(ctrl.getListDistrictSortedByName());	
+				}
 					
-					// Ville
-					if(listTitleColumn[i_idFilter].equals("Ville")) {
-						((FilterListStringDefined)listFilter[i_idFilter]).setListStringDefined(ctrl.getListCitySortedByName());
-					}
+				// Type
+				else if(listTitleColumn[i_idFilter].equals("Type")) {
+					((FilterListStringDefined)listFilter[i_idFilter]).setListStringDefined(ctrl.getListTypeBuildingSortedByName());	
+				}
 					
-					// Province
-					else if(listTitleColumn[i_idFilter].equals("Province")) {
-						((FilterListStringDefined)listFilter[i_idFilter]).setListStringDefined(ctrl.getListDistrictSortedByName());	
-					}
-					
-					// Type
-					else if(listTitleColumn[i_idFilter].equals("Type")) {
-						((FilterListStringDefined)listFilter[i_idFilter]).setListStringDefined(ctrl.getListTypeBuildingSortedByName());	
-					}
-					
-					// Sinon
-					else {
-						System.err.println("Erreur");
-					}
-					
-					break;
-				case 2 :
-					((FilterStringUndefined)listFilter[i_idFilter]).setS_Filter("");
-					break;
-				case 10 :
-					((FilterInteger)listFilter[i_idFilter]).setI_valueMin(0);
-					((FilterInteger)listFilter[i_idFilter]).setI_valueMax(100);
-					break;
-				case 11 :
-					((FilterCase)listFilter[i_idFilter]).setS_caseX("X");
-					((FilterCase)listFilter[i_idFilter]).setS_caseY("Y");
-					break;
-				case 12 :
-					((FilterBoolean)listFilter[i_idFilter]).setFilteringValue(false);
-					break;
-				default :
-					System.err.println("Unknow filter");
-					break;
+				// Sinon
+				else {
+					System.err.println("TabModel - Unknown FilterListStringDefined");
+				}
 			}
 		}
-
 	}
 	
 	/**
@@ -312,17 +293,44 @@ public abstract class TabModel extends AbstractTableModel implements I_Controlle
 	 */
 	public abstract void setTypeContent();
 	
-	
+	/**
+	 * Renvoie la liste de titre descolonnes
+	 * @return
+	 */
 	public String[] getListTitleColumn() {
 		return listTitleColumn;
 	}
 	
+	/**
+	 * Renvoie la liste de filtre
+	 * @return
+	 */
 	public Filter[] getListFilter() {
 		return listFilter;
 	}
 
+	/**
+	 * Change la liste de filtre
+	 * @param listFilter
+	 */
 	public void setListFilter(Filter[] listFilter) {
 		this.listFilter = listFilter;
+	}
+
+	/**
+	 * Renvoie le cacheur" de colonne
+	 * @return
+	 */
+	public TableColumnHider getColumnHider() {
+		return columnHider;
+	}
+
+	/**
+	 * Change le "cacheur" de colonne
+	 * @param columnHider
+	 */
+	public void setColumnHider(TableColumnHider columnHider) {
+		this.columnHider = columnHider;
 	}
 
 }

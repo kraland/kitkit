@@ -7,19 +7,25 @@ public class FilterBoolean extends Filter{
 	/**
 	 * Booleen indiquant quelle valeur on filtre
 	 */
-	private boolean isFilteringValue = false;
+	private boolean isFilteringValue;
 	
 	
 	public FilterBoolean(int i_type, int i_idFilter, int i_nbFilter, String s_name) {
 		super(i_type, i_idFilter, i_nbFilter, s_name);
 	}
 
-
+	/**
+	 * Change le booleen indiquant quelle valeur on filtre
+	 * @return
+	 */
 	public boolean isFilteringValue() {
 		return isFilteringValue;
 	}
 
-
+	/**
+	 * Renvoie le booleen indiquant quelle valeur on filtre
+	 * @param isFilteringValue
+	 */
 	public void setFilteringValue(boolean isFilteringValue) {
 		this.isFilteringValue = isFilteringValue;
 	}
@@ -57,5 +63,15 @@ public class FilterBoolean extends Filter{
 		{
 			System.out.println("Erreur de taille");
 		}
+	}
+
+
+	@Override
+	public void initFilter() {
+		// On desactive le filtre
+		setActive(false);
+		
+		// On initialise le filtre
+		setFilteringValue(false);
 	}
 }

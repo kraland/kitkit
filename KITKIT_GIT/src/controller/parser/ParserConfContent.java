@@ -395,9 +395,6 @@ public class ParserConfContent implements I_ModelDialog, I_ControllerDialog, Run
 						
 						// On ajoute un check point
 						ctrl.addCheckPoint("Chargement de " + districtTmp.getS_name() + " OK");
-						
-						// On fait une temporisation
-						Thread.sleep(50);
 					}
 				}
 			}

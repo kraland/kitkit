@@ -1100,6 +1100,9 @@ public class Model implements I_ControllerDialog{
  		clearTabModelObject();
  		clearTabModelBuilding();
  		clearTabModelBuildingToBuy();
+ 		
+		// On initialise le nombre de province parcourues
+		i_nbDistrictBrowsed = 0;
 	}
 
 	public void initFilter()

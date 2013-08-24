@@ -7,12 +7,12 @@ public class FilterCase extends Filter{
 	/**
 	 * Filtre de case sur X
 	 */
-	private String s_caseX = "X";
+	private String s_caseX;
 	
 	/**
 	 * Filtre de case sur Y
 	 */
-	private String s_caseY = "Y";
+	private String s_caseY;
 	
 	/**
 	 * Constructeur de filtre de case
@@ -111,6 +111,16 @@ public class FilterCase extends Filter{
 	 */
 	public void setS_caseY(String s_caseY) {
 		this.s_caseY = s_caseY;
+	}
+
+	@Override
+	public void initFilter() {
+		// On desactive le filtre
+		setActive(false);
+		
+		// On initialise le filtre
+		setS_caseX("X");
+		setS_caseY("Y");
 	}
 
 }

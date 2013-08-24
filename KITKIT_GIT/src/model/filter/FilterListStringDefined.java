@@ -25,7 +25,6 @@ public class FilterListStringDefined extends Filter {
 
 	public FilterListStringDefined(int i_type, int i_idFilter, int i_nbFilter, String s_name) {
 		super(i_type, i_idFilter, i_nbFilter, s_name);
-		listStringFiltered = new ArrayList<String>();
 	}
 
 	/**
@@ -92,5 +91,19 @@ public class FilterListStringDefined extends Filter {
 		{
 			System.out.println("Erreur de taille");
 		}
+	}
+
+	@Override
+	public void initFilter() {
+		// On desactive le filtre
+		setActive(false);
+		
+		// On initialise le filtre
+		if(null == listStringFiltered)
+		{
+			listStringFiltered = new ArrayList<String>();
+		}
+		listStringFiltered.clear();
+				
 	}
 }

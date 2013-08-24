@@ -24,49 +24,60 @@ public class ContentObject implements I_DefaultContent
 	private int i_level;
 	
 	/**
-	 * Label affichant le type du batiment
+	 * Type du batiment
 	 */
 	private String s_typeBuilding;
 	
 	/**
-	 * Label contenant le nom du batiment
+	 * Lien HTML contenant le nom du batiment
 	 */
 	private	HTMLLink htmlLinkNameBuilding;
 	
 	/**
-	 * Label affichant la case
+	 * Case
 	 */
 	private String s_case;
 	
 	/**
-	 * Label contenant le lien et le nom de la ville 
+	 * Lien HTML contenant le lien et le nom de la ville 
 	 */
 	private	HTMLLink htmlLinkNameCity;
 	
 	/**
-	 * Label contenant le lien et le nom de la province
+	 * Lien HTML contenant le lien et le nom de la province
 	 */
 	private HTMLLink htmlLinkNameDistrict;
 	
 	/**
-	 * Label contenant le prix d'achat
+	 * Entier contenant le prix d'achat
 	 */
 	private	Integer i_buyPrice;
 	
 	/**
-	 * Label contenant le prix de vente
+	 * Entier contenant le prix de vente
 	 */
 	private	Integer i_soldPrice;
 	
 	/**
-	 * Label contenant la quantite en stock
+	 * Entier contenant la quantite en stock
 	 */
 	private Integer i_quantity;
 	
 	/**
-	 * Label contenant la quantite max
+	 * Entier contenant la quantite max
 	 */
 	private	Integer i_quantityMax;
+	
+	/**
+	 * Entier contenant le salaire
+	 */
+	private	Integer i_salary;
+	
+	
+	/**
+	 * Entier contenant le nombre de salaire
+	 */
+	private	Integer i_nbSalary;
 	
 	/**
 	 * Label affichant si le batiment est ferme
@@ -115,9 +126,15 @@ public class ContentObject implements I_DefaultContent
 		
 		// On recupere l'entier contenant la quantite maximale d'un produit
 		i_quantityMax = Integer.valueOf(listString.get(12));
+		
+		// On recupere l'entier contenant le salaire
+		i_salary = Integer.valueOf(listString.get(13));
 
+		// On recupere l'entier contenant le nombre de salaire
+		i_nbSalary = Integer.valueOf(listString.get(14));
+		
 		// On recupere le string indiquant si le batiment est ferme ou non
-		s_closed = listString.get(13);
+		s_closed = listString.get(15);
 		
 		
 		// On ajoute les differents objets a la liste
@@ -132,6 +149,8 @@ public class ContentObject implements I_DefaultContent
 		listObject.add(i_buyPrice);
 		listObject.add(i_quantity);
 		listObject.add(i_quantityMax);
+		listObject.add(i_salary);
+		listObject.add(i_nbSalary);
 		listObject.add(s_closed);
 		
 		// On cree la liste de donnees utiles
@@ -147,6 +166,8 @@ public class ContentObject implements I_DefaultContent
 		listColumn.add(listString.get(11));
 		listColumn.add(listString.get(12));
 		listColumn.add(listString.get(13));
+		listColumn.add(listString.get(14));
+		listColumn.add(listString.get(15));
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -174,6 +195,10 @@ public class ContentObject implements I_DefaultContent
 		case 9:
 			return Integer.class;
 		case 10:
+			return Integer.class;
+		case 11:
+			return Integer.class;
+		case 12:
 			return String.class;
 		default:
 			break;

@@ -4,6 +4,7 @@ import ihm.ConfigIcon;
 import ihm.IHMTools;
 import ihm.I_Viewable;
 import ihm.part.I_TableViewer;
+import ihm.part.PanelExtendedColumn;
 import ihm.part.PanelExtendedFilter;
 
 import java.awt.BorderLayout;
@@ -21,6 +22,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -113,9 +115,29 @@ public class PanelPagesJaukesConfig extends JPanel  implements 	ActionListener,
 	private JButton jButtonFilterIndicator;
 	
 	/**
+	 * Panel contenant la liste des colonnes
+	 */
+	private PanelExtendedColumn jPanelColumn;
+		
+	/**
+	 * Label affichant ou non une alerte si au moins un filtre est actif
+	 */
+	private JButton jButtonColumnIndicator;
+	
+	/**
+	 * Liste de checkbox de colonnes
+	 */
+	private JCheckBox[] list_jCheckBoxColumn;
+	
+	/**
 	 * Liste de boutons de filtre
 	 */
 	private JButton[] list_jButtonFilter;
+	
+	/**
+	 * Booleen indiquant si l'initialisation est en cours
+	 */
+	private boolean isInitInProgress = false;
 	
 	public PanelPagesJaukesConfig()
 	{
@@ -186,6 +208,15 @@ public class PanelPagesJaukesConfig extends JPanel  implements 	ActionListener,
     	jPanelFilter = new PanelExtendedFilter();
     	bV.add(jPanelFilter);
     	jPanelFilter.setMaximumSize(new Dimension(3000,80));
+    	bV.add(Box.createVerticalStrut(10)); 
+    	
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+		//////////////////////////////////////////// On cree la partie Colonnes ///////////////////////////////////////// 
+		/////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
+    	
+    	jPanelColumn = new PanelExtendedColumn();
+    	bV.add(jPanelColumn);
+    	jPanelColumn.setMaximumSize(new Dimension(3000,80));
     	
     	bV.add(Box.createVerticalGlue());
     	
@@ -268,6 +299,46 @@ public class PanelPagesJaukesConfig extends JPanel  implements 	ActionListener,
 		jPanelFilter.updateButtonFilter();
 	}
 	
+	@SuppressWarnings("static-access")
+	public void createColumnPanel()
+	{
+		// Si le panel de colonne n'a pas deja ete initialise
+		if(!jPanelColumn.hasDoneInit())
+		{
+			TabModel tabModel = ctrl.getModel().getTabModelBuilding();
+			
+			// On transmet son nom au panel affichant les filtres
+			jPanelColumn.setS_name("Colonnes :");
+			
+			// On cree le bouton indiquant si un filtre est actif
+			jButtonColumnIndicator = IHMTools.getInstance().getNewButtonWithIcon_ActionListener(ConfigIcon.getInstance().COLUMN_ALL_SELECTED,this);
+			
+			// On transmet le bouton indiquant si un filtre est actif au panel affichant les filtres
+			jPanelColumn.setJComponentBegin(jButtonColumnIndicator);
+					
+			// On cree le tableau de bouton
+			list_jCheckBoxColumn = new JCheckBox[tabModel.getListTitleColumn().length];
+	    	
+		 	// On cree chaque bouton
+	    	for(int i_idFilter = 0 ; i_idFilter < tabModel.getListTitleColumn().length ; i_idFilter++)
+	    	{
+	    		list_jCheckBoxColumn[i_idFilter] = new JCheckBox(tabModel.getListTitleColumn()[i_idFilter]);
+	    	}
+	    	
+			// On transmet la liste de bouton de filtres au panel affichant les filtres
+	    	jPanelColumn.setListComponent(list_jCheckBoxColumn);
+	    	
+	    	jPanelColumn.setiTableViewer(this);
+	    	jPanelColumn.setController(ctrl);
+	    	jPanelColumn.setTabModel(tabModel);
+			
+			// On cree le panel
+	    	jPanelColumn.createPanelExtended();
+	    	
+		}
+		
+		jPanelColumn.updateButtonColumn();
+	}
 	
 	@SuppressWarnings("static-access")
 	@Override
@@ -329,9 +400,13 @@ public class PanelPagesJaukesConfig extends JPanel  implements 	ActionListener,
 	 */
 	public void initValueIHM()
 	{
+		isInitInProgress = true;
 		jLabelSearch.setText("Lancer la recherche...");
 		
 		createFilterPanel();
+		createColumnPanel();
+		
+		isInitInProgress = false;
 	}
 	
 	/**
@@ -460,18 +535,21 @@ public class PanelPagesJaukesConfig extends JPanel  implements 	ActionListener,
 	@SuppressWarnings("static-access")
 	public void launchResearch()
 	{
-		boolean isPerson;
-			
-		if(jButtonResearchType.getIcon() == ConfigIcon.getInstance().PERSON)
+		if(!isInitInProgress)
 		{
-			isPerson = true;
+			boolean isPerson;
+				
+			if(jButtonResearchType.getIcon() == ConfigIcon.getInstance().PERSON)
+			{
+				isPerson = true;
+			}
+			else
+			{
+				isPerson = false;
+			}
+				
+			jLabelSearch.setText(ctrl.searchBuilding(jTextFieldName.getText(),isPerson));
 		}
-		else
-		{
-			isPerson = false;
-		}
-			
-		jLabelSearch.setText(ctrl.searchBuilding(jTextFieldName.getText(),isPerson));
 	}
 
 

@@ -1,8 +1,14 @@
 package ihm;
 
-import java.awt.BorderLayout;
-import java.awt.Graphics;
 
+import java.awt.BorderLayout;
+import java.awt.Desktop;
+import java.awt.Graphics;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+
+import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -13,6 +19,7 @@ import javax.swing.event.ListSelectionListener;
 
 import controller.Controller;
 import controller.I_ControllerDialog;
+import model.tab.HTMLLink;
 import model.tab.TabModel;
 
 
@@ -80,6 +87,53 @@ public class TabPanel  extends JPanel implements I_ControllerDialog{
 			}
 		};
 		
+		tableau.addMouseListener(new MouseListener() {
+			
+			@Override
+			public void mouseReleased(MouseEvent arg0) {}
+			
+			@Override
+			public void mousePressed(MouseEvent arg0){}
+			
+			@Override
+			public void mouseExited(MouseEvent arg0) {}
+			
+			@Override
+			public void mouseEntered(MouseEvent arg0) {}
+			
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+
+				// Si double click
+				if (arg0.getClickCount() == 2)
+				{
+					// Si bouton gauche
+					if (arg0.getButton() == MouseEvent.BUTTON1)
+					{
+						// On recupere l'objet sur lequel on a clicke
+						Object objectClicked = tableau.getValueAt(tableau.rowAtPoint(arg0.getPoint()), tableau.columnAtPoint(arg0.getPoint()));
+						
+						// Si il s'agit d'un lien HTML on affiche la page
+						if(objectClicked instanceof HTMLLink)
+						{
+						    if (Desktop.isDesktopSupported())
+						    {
+						        URI uri = URI.create(((HTMLLink)objectClicked).getS_link());
+						        try
+						        {
+						            Desktop.getDesktop().browse(uri);
+						        }
+						        catch (IOException e)
+						        {
+						            e.printStackTrace();
+						        }
+						    }
+						}
+					}
+			     }
+			}
+		});
+		
 		centerCells();
 		
 		// On bloque le deplacement des colonnes
@@ -137,6 +191,13 @@ public class TabPanel  extends JPanel implements I_ControllerDialog{
 	{
 		this.tabModel = tabModel;
 		tableau.setModel(tabModel);
+
+		// On regarde si le modele ne dispose pas deja d'un "ColumnHider"
+		if(tabModel.getColumnHider() == null)
+		{
+			// On fournit le cacheur de colonne au modele
+			tabModel.setColumnHider(new TableColumnHider(tableau));
+		}
 		
 		centerCells();
 

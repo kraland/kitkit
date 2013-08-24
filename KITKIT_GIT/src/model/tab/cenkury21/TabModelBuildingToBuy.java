@@ -23,6 +23,7 @@ public class TabModelBuildingToBuy extends TabModel implements I_ControllerDialo
 	 * 10 : Filtre d'entier
 	 * 11 : Filtre de cases
 	 * 12 : Filtre de booleen
+	 * 13 : Filtre de valeur KI
 	 */
 	private static int[]	listTypeFilter	=	{	10,
 													1,

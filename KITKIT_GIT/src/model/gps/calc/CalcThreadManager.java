@@ -250,39 +250,79 @@ public class CalcThreadManager extends Thread{
 		this.hasTerminatedFirstThread = hasTerminatedFirstThread;
 	}
 
+	/**
+	 * Change la map 2D
+	 * @param map2D
+	 */
 	public static void setMap2D(List<List<Integer>> map2D) {
 		CalcThreadManager.map2D = map2D;
 	}
 
+	/**
+	 * Renvoie la map 2D
+	 * @return
+	 */
 	public static List<List<Integer>> getMap2D() {
 		return map2D;
 	}
 
+	/**
+	 * Change le point d'arret
+	 * @param pointStop
+	 */
 	public void setPointStop(Point pointStop) {
 		this.pointStop = pointStop;
 	}
 
+	/**
+	 * Renvoie le point d'arret
+	 * @return
+	 */
 	public Point getPointStop() {
 		return pointStop;
 	}
 
+	/**
+	 * Ajoute une liste de chemin se terminant par le point d'arret
+	 * @param listWayWithPointStop
+	 */
 	public void addListWayPointStop(List<CalcWay> listWayWithPointStop) {
 		list_listWayWithPointStop.add(listWayWithPointStop);
 	}
 
+	/**
+	 * Change la map de meilleurs chemins
+	 * @param map_d_bestWay
+	 */
 	public synchronized void setMap_d_bestWay(MapDouble map_d_bestWay) {
 		this.map_d_bestWay = map_d_bestWay;
 	}
 
+	/**
+	 * Renvoie la map de meilleurs chemins
+	 * @return
+	 */
 	public synchronized MapDouble getMap_d_bestWay() {
 		return map_d_bestWay;
 	}
 
+	/**
+	 * Renvoie le meilleur chemin
+	 * @param i_xPoint
+	 * @param i_yPoint
+	 * @return
+	 */
 	public synchronized double getD_BestWay(int i_xPoint, int i_yPoint)
 	{
 		return map_d_bestWay.getMap()[i_xPoint][i_yPoint];
 	}
 
+	/**
+	 * Change le meilleur chemin
+	 * @param i_xPoint
+	 * @param i_yPoint
+	 * @param d_nbPdV
+	 */
 	public synchronized void setD_BestWay(int i_xPoint, int i_yPoint, double d_nbPdV) {
 		map_d_bestWay.getMap()[i_xPoint][i_yPoint] = d_nbPdV;
 	}

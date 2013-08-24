@@ -2,25 +2,17 @@ package ihm.part;
 
 import ihm.ConfigIcon;
 import ihm.IHMTools;
-import ihm.filter.IHMFilterBoolean;
-import ihm.filter.IHMFilterCase;
-import ihm.filter.IHMFilterInteger;
-import ihm.filter.IHMFilterKIValue;
-import ihm.filter.IHMFilterListStringDefined;
-import ihm.filter.IHMFilterStringUndefined;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
+
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
@@ -32,8 +24,7 @@ import model.filter.Filter;
 import model.tab.TabModel;
 
 @SuppressWarnings("serial")
-public class PanelExtendedFilter extends JPanel implements 	ActionListener,
-															MouseListener,
+public class PanelExtendedColumn extends JPanel implements 	ActionListener,
 															I_ControllerDialog
 {
 	/**
@@ -91,7 +82,7 @@ public class PanelExtendedFilter extends JPanel implements 	ActionListener,
 	 * Constructeur
 	 */
 	@SuppressWarnings("static-access")
-	public PanelExtendedFilter()
+	public PanelExtendedColumn()
 	{
 		setBorder( BorderFactory.createRaisedBevelBorder());
 		setLayout(new BorderLayout());
@@ -133,8 +124,7 @@ public class PanelExtendedFilter extends JPanel implements 	ActionListener,
 				bHTmp.add(componentTmp);
 				bHTmp.add(Box.createHorizontalGlue());
 				bV.add(bHTmp);
-				((JButton)componentTmp).addActionListener(this);
-				((JButton)componentTmp).addMouseListener(this);
+				((JCheckBox)componentTmp).addActionListener(this);
 			}
 			
 			// Ajoute la boite verticale dans le panel
@@ -176,6 +166,9 @@ public class PanelExtendedFilter extends JPanel implements 	ActionListener,
 		{
 			componentTmp.setVisible(isExtended);
 		}
+		
+		// On met a jour les checkbox
+		updateCheckBoxColumn();
 	}
 	
 	/**
@@ -276,16 +269,27 @@ public class PanelExtendedFilter extends JPanel implements 	ActionListener,
 		}
 		else if(source == jComponentBegin)
 		{
-			if(((JButton)jComponentBegin).getIcon() == ConfigIcon.ALERT)
+		
+			if(((JButton)jComponentBegin).getIcon() == ConfigIcon.COLUMN_NOT_ALL_SELECTED)
 			{
+				// On parcourt tous les filtres (boutons)
+				for(int i_idFilter = 0 ; i_idFilter < tabModel.getListFilter().length ; i_idFilter++)
+				{
+					// Si on demande a ce que la colonne soit visible alors on l'affiche
+					tabModel.getColumnHider().show(tabModel.getListFilter()[i_idFilter].getS_name());
+				}
+				
 				// On parcourt tous les filtres (boutons)
 				for(Filter filterTmp : tabModel.getListFilter())
 				{
-					filterTmp.setActive(false);
+					filterTmp.setColumnVisible(true);
 				}
 				
 				// On met a jour les boutons de filtres
-				updateButtonFilter();
+				updateButtonColumn();
+				
+				// On met a jour les checkbox
+				updateCheckBoxColumn();
 			}
 		}
 		else
@@ -297,10 +301,21 @@ public class PanelExtendedFilter extends JPanel implements 	ActionListener,
 				if(source == listComponent[i_idFilter])
 				{									
 					// On inverse l'activite du filtre
-					tabModel.getListFilter()[i_idFilter].setActive(!tabModel.getListFilter()[i_idFilter].isActive());
+					tabModel.getListFilter()[i_idFilter].setColumnVisible(!tabModel.getListFilter()[i_idFilter].isColumnVisible());
 					
 					// On met a jour les boutons de filtres
-					updateButtonFilter();
+					updateButtonColumn();
+					
+					// Si on demande a ce que la colonne soit visible alors on l'affiche
+					if(tabModel.getListFilter()[i_idFilter].isColumnVisible())
+					{
+						tabModel.getColumnHider().show(tabModel.getListFilter()[i_idFilter].getS_name());
+					}
+					// Sinon on la cache
+					else
+					{
+						tabModel.getColumnHider().hide(tabModel.getListFilter()[i_idFilter].getS_name());
+					}
 					
 					break;
 				}
@@ -308,134 +323,43 @@ public class PanelExtendedFilter extends JPanel implements 	ActionListener,
 		}
 
 	}
-
-	@Override
-	public void mouseClicked(MouseEvent mouseEvent) {
+	
+	private void updateCheckBoxColumn() {
 		
-		Object source = mouseEvent.getSource();
-		
-		// On parcourt tous les filtres (boutons)
-		for(int i_idFilter = 0 ; i_idFilter < tabModel.getListFilter().length ; i_idFilter++)
+		// On parcourt tous les filtres
+		for(int i_idFilter = 0 ; i_idFilter < listComponent.length ; i_idFilter++)
 		{
-			// Si la source est le bouton actuel
-			if(source == listComponent[i_idFilter])
-			{				
-				// Si il s'agit d'un clic droit
-				if(mouseEvent.getModifiers() == InputEvent.BUTTON3_MASK)
-				{
-					// JDialog a afficher
-					JDialog dialogToShow = null;
-					
-					/**
-					 * Type des filtres
-					 * 1 : Filtre de liste de string definie
-					 * 2 : Filtre de string indefinie
-					 * 10 : Filtre d'entier
-					 * 11 : Filtre de cases
-					 * 12 : Filtre de booleen
-					 */
-					switch(tabModel.getListFilter()[i_idFilter].getI_type())
-					{
-						case 1 :
-							System.out.println("Filtre de liste de string definie");
-							dialogToShow = new IHMFilterListStringDefined(tabModel.getListFilter()[i_idFilter], ctrl.getView());
-							dialogToShow.setSize(500,450);
-							break;
-						case 2 :
-							System.out.println("Filtre de string indefinie");
-							dialogToShow = new IHMFilterStringUndefined(tabModel.getListFilter()[i_idFilter], ctrl.getView());
-							dialogToShow.setSize(500,170);
-							break;
-						case 10 :
-							System.out.println("Filtre d'entier");
-							dialogToShow = new IHMFilterInteger(tabModel.getListFilter()[i_idFilter], ctrl.getView());
-							dialogToShow.setSize(500,170);
-							break;
-						case 11 :
-							System.out.println("Filtre de cases");
-							dialogToShow = new IHMFilterCase(tabModel.getListFilter()[i_idFilter], ctrl.getView());
-							dialogToShow.setSize(500,170);
-							break;
-						case 12 :
-							System.out.println("Filtre de booleen");
-							dialogToShow = new IHMFilterBoolean(tabModel.getListFilter()[i_idFilter], ctrl.getView());
-							dialogToShow.setSize(500,170);
-							break;
-						case 13 :
-							System.out.println("Filtre de valeur de KI");
-							dialogToShow = new IHMFilterKIValue(tabModel.getListFilter()[i_idFilter], ctrl.getView());
-							dialogToShow.setSize(500,370);
-							break;
-						default :
-							System.err.println("PanelExtendedFilter.java - Filtre inconnu");
-							break;
-					}
-					
-					if(dialogToShow != null)
-					{
-						dialogToShow.setLocation(IHMTools.getInstance().getLocation(dialogToShow.getWidth(), dialogToShow.getHeight()));
-						dialogToShow.setVisible(true);
-					}
-
-					// On met a jour les boutons de filtres
-					updateButtonFilter();
-				}
-			}
-		}
+			((JCheckBox)listComponent[i_idFilter]).setSelected(tabModel.getListFilter()[i_idFilter].isColumnVisible());
+		}		
 	}
-
-	@Override
-	public void mouseEntered(MouseEvent mouseEvent) {
-		// Seul le clic droit est utile
-	}
-
-	@Override
-	public void mouseExited(MouseEvent mouseEvent) {
-		// Seul le clic droit est utile
-	}
-
-	@Override
-	public void mousePressed(MouseEvent mouseEvent) {
-		// Seul le clic droit est utile
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent mouseEvent) {
-		// Seul le clic droit est utile
-	}
-
 	
 	/**
 	 * Met a jour les boutons de filtres
 	 */
 	@SuppressWarnings("static-access")
-	public void updateButtonFilter() {
+	public void updateButtonColumn() {
 		
-		boolean hasOneActiveFilter = false;
+		boolean hasOneHideColumn = false;
 		
 		// On parcourt tous les filtres
 		for(int i_idFilter = 0 ; i_idFilter < listComponent.length ; i_idFilter++)
 		{
-			if(tabModel.getListFilter()[i_idFilter].isActive())
+			if(!tabModel.getListFilter()[i_idFilter].isColumnVisible())
 			{									
-				hasOneActiveFilter = true;
-				((JButton)listComponent[i_idFilter]).setIcon(ConfigIcon.getInstance().ORANGE_CIRCLE);
-			}
-			else
-			{
-				((JButton)listComponent[i_idFilter]).setIcon(ConfigIcon.getInstance().GRAY_CIRCLE);
+				hasOneHideColumn = true;
+				break;
 			}
 		}
 		
 		// Si au moins un filtre est actif
-		if(hasOneActiveFilter)
+		if(hasOneHideColumn)
 		{
-			((JButton)jComponentBegin).setIcon(ConfigIcon.getInstance().ALERT);
+			((JButton)jComponentBegin).setIcon(ConfigIcon.getInstance().COLUMN_NOT_ALL_SELECTED);
 		}
 		// Sinon
 		else
 		{
-			((JButton)jComponentBegin).setIcon(ConfigIcon.getInstance().EMPTY_16);
+			((JButton)jComponentBegin).setIcon(ConfigIcon.getInstance().COLUMN_ALL_SELECTED);
 		}
 		
 		// On lance la recherche
@@ -458,35 +382,18 @@ public class PanelExtendedFilter extends JPanel implements 	ActionListener,
 	{
 	   return ctrl;
 	}
-	
-	/**
-	 * Renvoie l'interface de vue
-	 * @return
-	 */
 	public I_TableViewer getiTableViewer() {
 		return iTableViewer;
 	}
 
-	/**
-	 * Change l'interface de vue
-	 * @param iTableViewer
-	 */
 	public void setiTableViewer(I_TableViewer iTableViewer) {
 		this.iTableViewer = iTableViewer;
 	}
 	
-	/**
-	 * Renvoie le modele du tableau
-	 * @return
-	 */
 	public TabModel getTabModel() {
 		return tabModel;
 	}
 
-	/**
-	 * Change le modele du tableau
-	 * @param tabModel
-	 */
 	public void setTabModel(TabModel tabModel) {
 		this.tabModel = tabModel;
 	}

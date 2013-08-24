@@ -97,6 +97,12 @@ public class ConfigIcon{
 	 */
 	public static ImageIcon RED_FLAG;
 	
+	
+	/**
+	 * Image Icon affichant un icone xml
+	 */
+	public static ImageIcon XML;
+	
 	/**
 	 * Image Icon permettant de zoomer la map 3D
 	 */
@@ -268,6 +274,16 @@ public class ConfigIcon{
 	 */
 	public static ImageIcon BOOL_KO;
 	
+	/**
+	 * Image Icon indiquant que toutes les colonnes sont selectionnees
+	 */
+	public static ImageIcon COLUMN_ALL_SELECTED;
+	
+	/**
+	 * Image Icon indiquant que toutes les colonnes ne sont pas selectionnees
+	 */
+	public static ImageIcon COLUMN_NOT_ALL_SELECTED;
+	
 	private static ConfigIcon instance = null;
 	
 	/**
@@ -305,6 +321,7 @@ public class ConfigIcon{
 		MOUSE = new ImageIcon(getClass().getResource("/img/button/mouse.png"));
 		GREEN_FLAG = new ImageIcon(getClass().getResource("/img/button/greenFlag.png"));
 		RED_FLAG = new ImageIcon(getClass().getResource("/img/button/redFlag.png"));
+		XML = new ImageIcon(getClass().getResource("/img/button/xml.png"));
 		REFRESH = new ImageIcon(getClass().getResource("/img/button/refresh.png"));
 		UNDO = new ImageIcon(getClass().getResource("/img/button/undo.png"));
 		RESERVED = new ImageIcon(getClass().getResource("/img/button/reserved.png"));
@@ -335,6 +352,8 @@ public class ConfigIcon{
 		NO_CLOSED = new ImageIcon(getClass().getResource("/img/button/empty16.png"));
 		BOOL_OK = new ImageIcon(getClass().getResource("/img/button/bool_ok.png"));
 		BOOL_KO = new ImageIcon(getClass().getResource("/img/button/bool_ko.png"));
+		COLUMN_ALL_SELECTED = new ImageIcon(getClass().getResource("/img/button/column_all_selected.png"));
+		COLUMN_NOT_ALL_SELECTED = new ImageIcon(getClass().getResource("/img/button/column_not_all_selected.png"));
 		
 		// Chargement
 		CIRCLE_LOAD = new ImageIcon(getClass().getResource("/img/load/circle.png")); 

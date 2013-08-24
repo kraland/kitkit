@@ -20,6 +20,8 @@ public class TabModelObject extends TabModel implements I_ControllerDialog{
 												"Prix Achat",
 												"Quantité",
 												"Quantité Max.",
+												"Salaire",
+												"Nb Salaire",
 												"Fermé"};
 	
 	/**
@@ -29,6 +31,7 @@ public class TabModelObject extends TabModel implements I_ControllerDialog{
 	 * 10 : Filtre d'entier
 	 * 11 : Filtre de cases
 	 * 12 : Filtre de booleen
+	 * 13 : Filtre de valeur KI
 	 */
 	private static int[]	listTypeFilter	=	{	10,
 													1,
@@ -36,6 +39,8 @@ public class TabModelObject extends TabModel implements I_ControllerDialog{
 													11,
 													1,
 													1,
+													10,
+													10,
 													10,
 													10,
 													10,
